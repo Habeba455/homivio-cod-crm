@@ -1,0 +1,37 @@
+{
+  "cases": [
+    { "name": "historical order rejects call_answered", "status": null, "unanswered": 0, "event": "call_answered", "reason": null, "expect": { "ok": false, "error": "not_in_pipeline" } },
+    { "name": "historical order rejects call_no_answer", "status": null, "unanswered": 0, "event": "call_no_answer", "reason": null, "expect": { "ok": false, "error": "not_in_pipeline" } },
+    { "name": "historical order rejects confirm", "status": null, "unanswered": 0, "event": "confirm", "reason": null, "expect": { "ok": false, "error": "not_in_pipeline" } },
+    { "name": "historical order rejects cancel", "status": null, "unanswered": 0, "event": "cancel", "reason": "refused", "expect": { "ok": false, "error": "not_in_pipeline" } },
+
+    { "name": "New: call answered moves to Called", "status": "New", "unanswered": 0, "event": "call_answered", "reason": null, "expect": { "ok": true, "nextStatus": "Called", "unansweredAttemptCount": 0, "cancelReason": null, "autoCancelled": false } },
+    { "name": "New: first no answer moves to No Answer", "status": "New", "unanswered": 0, "event": "call_no_answer", "reason": null, "expect": { "ok": true, "nextStatus": "No Answer", "unansweredAttemptCount": 1, "cancelReason": null, "autoCancelled": false } },
+    { "name": "New: confirm is rejected", "status": "New", "unanswered": 0, "event": "confirm", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "New: cancel with refused", "status": "New", "unanswered": 0, "event": "cancel", "reason": "refused", "expect": { "ok": true, "nextStatus": "Cancelled", "unansweredAttemptCount": 0, "cancelReason": "refused", "autoCancelled": false } },
+
+    { "name": "No Answer (1): call answered moves to Called", "status": "No Answer", "unanswered": 1, "event": "call_answered", "reason": null, "expect": { "ok": true, "nextStatus": "Called", "unansweredAttemptCount": 1, "cancelReason": null, "autoCancelled": false } },
+    { "name": "No Answer (1): second no answer keeps No Answer", "status": "No Answer", "unanswered": 1, "event": "call_no_answer", "reason": null, "expect": { "ok": true, "nextStatus": "No Answer", "unansweredAttemptCount": 2, "cancelReason": null, "autoCancelled": false } },
+    { "name": "No Answer (1): confirm is rejected", "status": "No Answer", "unanswered": 1, "event": "confirm", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "No Answer (1): cancel with requested_by_customer", "status": "No Answer", "unanswered": 1, "event": "cancel", "reason": "requested_by_customer", "expect": { "ok": true, "nextStatus": "Cancelled", "unansweredAttemptCount": 1, "cancelReason": "requested_by_customer", "autoCancelled": false } },
+
+    { "name": "No Answer (2): third unanswered attempt auto-cancels", "status": "No Answer", "unanswered": 2, "event": "call_no_answer", "reason": null, "expect": { "ok": true, "nextStatus": "Cancelled", "unansweredAttemptCount": 3, "cancelReason": "three_unanswered_attempts", "autoCancelled": true } },
+
+    { "name": "Called (0): call answered keeps Called", "status": "Called", "unanswered": 0, "event": "call_answered", "reason": null, "expect": { "ok": true, "nextStatus": "Called", "unansweredAttemptCount": 0, "cancelReason": null, "autoCancelled": false } },
+    { "name": "Called (0): no answer logged, stays Called", "status": "Called", "unanswered": 0, "event": "call_no_answer", "reason": null, "expect": { "ok": true, "nextStatus": "Called", "unansweredAttemptCount": 1, "cancelReason": null, "autoCancelled": false } },
+    { "name": "Called (0): confirm", "status": "Called", "unanswered": 0, "event": "confirm", "reason": null, "expect": { "ok": true, "nextStatus": "Confirmed", "unansweredAttemptCount": 0, "cancelReason": null, "autoCancelled": false } },
+    { "name": "Called (0): cancel with other", "status": "Called", "unanswered": 0, "event": "cancel", "reason": "other", "expect": { "ok": true, "nextStatus": "Cancelled", "unansweredAttemptCount": 0, "cancelReason": "other", "autoCancelled": false } },
+
+    { "name": "Called (2): third unanswered attempt auto-cancels even when Called", "status": "Called", "unanswered": 2, "event": "call_no_answer", "reason": null, "expect": { "ok": true, "nextStatus": "Cancelled", "unansweredAttemptCount": 3, "cancelReason": "three_unanswered_attempts", "autoCancelled": true } },
+
+    { "name": "Confirmed: call_answered rejected", "status": "Confirmed", "unanswered": 0, "event": "call_answered", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "Confirmed: call_no_answer rejected", "status": "Confirmed", "unanswered": 0, "event": "call_no_answer", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "Confirmed: confirm rejected", "status": "Confirmed", "unanswered": 0, "event": "confirm", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "Confirmed: cancel rejected", "status": "Confirmed", "unanswered": 0, "event": "cancel", "reason": "other", "expect": { "ok": false, "error": "invalid_transition" } },
+
+    { "name": "Cancelled (3): call_answered rejected", "status": "Cancelled", "unanswered": 3, "event": "call_answered", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "Cancelled (3): call_no_answer rejected", "status": "Cancelled", "unanswered": 3, "event": "call_no_answer", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "Cancelled (3): confirm rejected", "status": "Cancelled", "unanswered": 3, "event": "confirm", "reason": null, "expect": { "ok": false, "error": "invalid_transition" } },
+    { "name": "Cancelled (3): cancel rejected", "status": "Cancelled", "unanswered": 3, "event": "cancel", "reason": "other", "expect": { "ok": false, "error": "invalid_transition" } }
+  ]
+}
