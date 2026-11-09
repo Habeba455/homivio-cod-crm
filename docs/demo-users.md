@@ -65,3 +65,21 @@ Dashboard → Authentication → Users → the user → **Send password recovery
 
 - The current database migrations already include `profiles`. This procedure does not change the schema.
 - Do not give anyone the service-role key for this step.
+
+## Two demo agents only (Phase I-6)
+
+Use this when the admin account already exists and you only need the two agents for the workflow test. Nothing here runs automatically.
+
+1. Dashboard → **Authentication → Users → Add user → Create new user**, twice. Use demo addresses you control, enable **Auto Confirm User**, and set each password in your password manager only.
+2. Copy both UIDs from the Users list.
+3. In the SQL Editor, replace the placeholders and run once:
+
+```sql
+insert into public.profiles (id, role, display_name) values
+  ('<AGENT_1_UUID>', 'agent', 'Demo Agent One'),
+  ('<AGENT_2_UUID>', 'agent', 'Demo Agent Two');
+```
+
+4. Verify with the query in Step 4 above. Expect the two agents, both active.
+
+Assign orders from `/admin` (Assign column). Each agent then sees only the orders assigned to them at `/agent`.

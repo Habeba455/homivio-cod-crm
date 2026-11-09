@@ -29,7 +29,10 @@ async function ProtectedShell({ children }: { children: ReactNode }) {
           </Link>
           <nav aria-label="Main" className="flex items-center gap-4 text-sm font-medium">
             {canAccessArea(user.role, "admin") ? <Link href="/admin">Admin</Link> : null}
-            <Link href="/agent">Agent workspace</Link>
+            {canAccessArea(user.role, "admin") ? <Link href="/admin/rescue">Rescue queue</Link> : null}
+            {canAccessArea(user.role, "admin") ? <Link href="/admin/distribution">Distribution</Link> : null}
+            {canAccessArea(user.role, "admin") ? <Link href="/admin/analytics">Analytics</Link> : null}
+            <Link href="/agent">Rescue Center</Link>
           </nav>
         </div>
 
