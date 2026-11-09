@@ -22,21 +22,22 @@ describe("sanitizeSearchText", () => {
 
 describe("parseOrderFilters", () => {
   it("defaults to all statuses and an empty query", () => {
-    expect(parseOrderFilters({})).toEqual({ q: "", status: "all" });
+    expect(parseOrderFilters({})).toEqual({ q: "", status: "all", city: "" });
   });
 
   it("accepts a known source status", () => {
-    expect(parseOrderFilters({ status: "refused" })).toEqual({ q: "", status: "refused" });
+    expect(parseOrderFilters({ status: "refused" })).toEqual({ q: "", status: "refused", city: "" });
   });
 
   it("falls back to all for an unknown status", () => {
-    expect(parseOrderFilters({ status: "shipped" })).toEqual({ q: "", status: "all" });
+    expect(parseOrderFilters({ status: "shipped" })).toEqual({ q: "", status: "all", city: "" });
   });
 
   it("uses the first value when a parameter repeats", () => {
     expect(parseOrderFilters({ q: ["Sale", "Oujda"], status: ["new", "delivered"] })).toEqual({
       q: "Sale",
       status: "new",
+      city: "",
     });
   });
 });
