@@ -199,7 +199,7 @@ export async function distributeOrdersAction(_previous: DistributeState, formDat
     return { status: "error", message: view.message, refresh: view.refresh };
   }
 
-  for (const path of ["/admin", "/agent"]) revalidatePath(path, "layout");
+  for (const path of ["/dashboard", "/admin", "/agent"]) revalidatePath(path, "layout");
   revalidatePath("/admin/distribution");
   revalidatePath("/admin/rescue");
 

@@ -18,8 +18,8 @@ export function canAccessArea(role: AppRole, area: AppArea): boolean {
 }
 
 /** Where a signed-in user lands after login. */
-export function homePathFor(role: AppRole): "/admin" | "/agent" {
-  return role === "admin" ? "/admin" : "/agent";
+export function homePathFor(role: AppRole): "/dashboard" | "/agent" {
+  return role === "admin" ? "/dashboard" : "/agent";
 }
 
 /** Returns where to send a user who may not open an area, or null when access is allowed. */

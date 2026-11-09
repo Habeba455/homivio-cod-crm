@@ -18,6 +18,7 @@ function item(ref: string, agentId: string | null, overrides: Partial<OrderSigna
       assignedAgentId: agentId,
       ...overrides,
     },
+    version: 1,
     customerName: `Customer ${ref}`,
     agentName: agentId === null ? null : "Agent",
     shippingCity: "Casablanca",

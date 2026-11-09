@@ -1,3 +1,5 @@
+import { isCityFilterKey } from "@/modules/analytics/domain/cities";
+
 import { SOURCE_STATUSES } from "./domain/status";
 
 /**
@@ -9,6 +11,8 @@ export type OrderStatusFilter = (typeof ORDER_STATUS_FILTERS)[number];
 export type OrderListFilters = {
   q: string;
   status: OrderStatusFilter;
+  /** A registered city key, or "other" for unmapped values. Empty when no city filter applies. */
+  city: string;
 };
 
 const MAX_QUERY_LENGTH = 100;
@@ -37,8 +41,12 @@ export function parseOrderFilters(
     ? (rawStatus as OrderStatusFilter)
     : "all";
 
+  const rawCity = firstValue(params.city) ?? "";
+  const city = isCityFilterKey(rawCity) ? rawCity : "";
+
   return {
     q: sanitizeSearchText(firstValue(params.q) ?? ""),
     status,
+    city,
   };
 }

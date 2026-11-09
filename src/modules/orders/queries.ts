@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { loadRawCityNamesForCity } from "@/modules/analytics/city-queries";
 
 import { PIPELINE_STATUSES, SOURCE_STATUSES } from "./domain/status";
 import type { OrderListFilters } from "./order-filters";
@@ -70,6 +71,18 @@ export async function listOrdersForAdmin(filters: OrderListFilters): Promise<Adm
       clauses.push(`customer_id.in.(${matchingCustomerIds.join(",")})`);
     }
     query = query.or(clauses.join(","));
+  }
+
+  if (filters.city !== "") {
+    // Exact match on every raw value the map counts for this city. PostgREST quotes values that contain commas.
+    const names = await loadRawCityNamesForCity(filters.city);
+    if (names === null) {
+      return { ok: false };
+    }
+    if (names.length === 0) {
+      return { ok: true, rows: [], truncated: false };
+    }
+    query = query.in("shipping_city", names);
   }
 
   const { data, error } = await query;

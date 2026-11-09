@@ -10,6 +10,8 @@ import {
 /** One active order with the display fields the queue needs. Built on the server from persisted data. */
 export type RescueItem = {
   signals: OrderSignals;
+  /** Current order version, sent back with any workflow action so stale writes are rejected. */
+  version: number;
   customerName: string | null;
   agentName: string | null;
   shippingCity: string;

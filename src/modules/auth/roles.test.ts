@@ -24,7 +24,7 @@ describe("canAccessArea", () => {
 
 describe("homePathFor", () => {
   it("sends admins to the admin area and agents to the agent area", () => {
-    expect(homePathFor("admin")).toBe("/admin");
+    expect(homePathFor("admin")).toBe("/dashboard");
     expect(homePathFor("agent")).toBe("/agent");
   });
 });

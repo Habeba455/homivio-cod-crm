@@ -9,7 +9,7 @@ export function ActionMessage({ ok, message }: { ok: boolean; message: string | 
     );
   }
   return (
-    <p role="status" className="text-sm font-medium text-emerald-700">
+    <p role="status" className="text-sm font-medium text-success">
       {message}
     </p>
   );

@@ -11,7 +11,7 @@ export function LoginForm() {
   const [state, formAction] = useActionState(signIn, INITIAL_STATE);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="lg-form space-y-5">
       <div>
         <label htmlFor="email" className="label">
           Work email
@@ -58,7 +58,7 @@ export function LoginForm() {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className="btn btn-primary w-full" disabled={pending}>
+    <button type="submit" className="btn btn-primary lg-submit w-full" disabled={pending}>
       {pending ? "Signing in…" : "Sign in"}
     </button>
   );

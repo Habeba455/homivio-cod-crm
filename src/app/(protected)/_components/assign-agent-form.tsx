@@ -25,7 +25,7 @@ export function AssignAgentForm({
 
   return (
     // The key remounts the form when the stored assignment or version changes, so the select shows the latest value.
-    <form key={`${currentAgentId ?? "none"}-${expectedVersion}`} action={formAction} className="flex flex-wrap items-center gap-2">
+    <form key={`${currentAgentId ?? "none"}-${expectedVersion}`} action={formAction} className="assign-form flex flex-wrap items-center gap-2">
       <input type="hidden" name="orderId" value={orderId} />
       <input type="hidden" name="expectedVersion" value={expectedVersion} />
       <label htmlFor={selectId} className="sr-only">

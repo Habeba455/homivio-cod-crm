@@ -2,24 +2,43 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { requireArea } from "@/modules/auth/guards";
-import { buildRescueQueue } from "@/modules/rescue/domain/queue";
+import { formatDateTime } from "@/modules/orders/format";
+import { buildRescueQueue, type RescueRow } from "@/modules/rescue/domain/queue";
 import { loadRescueItems } from "@/modules/rescue/queries";
 
-import { NextRecommendedCard, RescueNotices, RescueTable, SummaryCards } from "../../_components/rescue-ui";
+import { RescueBoard, type RescueBoardItem } from "../../_components/rescue-board";
+import { ACTION_LABELS, RescueNotices } from "../../_components/rescue-ui";
 
 /** Synchronous page: the session read and the queue load happen inside the Suspense boundary. */
 export default function AdminRescuePage() {
   return (
     <Suspense
       fallback={
-        <section className="card p-6" aria-busy="true" aria-live="polite">
-          <p className="muted text-sm">Loading the rescue queue…</p>
+        <section className="ov-panel" aria-busy="true" aria-live="polite">
+          <p className="ov-empty">Loading the rescue queue…</p>
         </section>
       }
     >
       <AdminRescue />
     </Suspense>
   );
+}
+
+function toBoardItem(row: RescueRow): RescueBoardItem {
+  const a = row.assessment;
+  return {
+    id: a.orderId,
+    ref: a.orderRef,
+    customer: row.customerName ?? "—",
+    city: row.shippingCity,
+    agent: row.agentName ?? "Unassigned",
+    level: a.level,
+    score: a.score,
+    action: ACTION_LABELS[a.action],
+    status: a.status,
+    reasons: a.reasons.map((reason) => ({ code: reason.code, text: reason.text, points: reason.points })),
+    last: a.lastAttemptAt === null ? "Never" : formatDateTime(a.lastAttemptAt),
+  };
 }
 
 async function AdminRescue() {
@@ -29,8 +48,8 @@ async function AdminRescue() {
 
   if (!load.ok) {
     return (
-      <div className="alert-error max-w-3xl" role="alert">
-        The rescue queue could not be loaded. Refresh the page to try again.
+      <div className="ov">
+        <p role="alert" className="ov-alert">The rescue queue could not be loaded. Refresh the page to try again.</p>
       </div>
     );
   }
@@ -38,22 +57,29 @@ async function AdminRescue() {
   const queue = buildRescueQueue(load.items, new Date());
 
   return (
-    <div className="flex max-w-6xl flex-col gap-5">
-      <header>
-        <h1 className="text-xl font-semibold tracking-tight">Rescue queue</h1>
-        <p className="muted mt-1 text-sm">
-          Signed in as {user.displayName}. All active pipeline orders, ranked by the same rules agents see.
-        </p>
+    <div className="ov">
+      <header className="ov-head">
+        <div>
+          <h1 className="ov-title">Rescue queue</h1>
+          <p className="ov-sub">
+            Signed in as {user.displayName}. Active pipeline orders, ranked by the rules agents see.
+          </p>
+        </div>
       </header>
 
-      <RescueNotices
-        historyAvailable={load.historyAvailable}
-        attemptsComplete={load.attemptsComplete}
-        truncated={load.truncated}
+      <div className="rq-notices">
+        <RescueNotices
+          historyAvailable={load.historyAvailable}
+          attemptsComplete={load.attemptsComplete}
+          truncated={load.truncated}
+        />
+      </div>
+
+      <RescueBoard
+        items={queue.rows.map(toBoardItem)}
+        summary={queue.summary}
+        next={queue.next === null ? null : toBoardItem(queue.next)}
       />
-      <NextRecommendedCard row={queue.next} linkOrders={false} />
-      <SummaryCards summary={queue.summary} />
-      <RescueTable rows={queue.rows} showAgent linkOrders={false} />
     </div>
   );
 }

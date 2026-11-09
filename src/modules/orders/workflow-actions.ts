@@ -20,7 +20,8 @@ import {
  * No action writes to a protected table directly.
  */
 
-export type ActionState = { ok: boolean; message: string | null };
+/** `finished` is set by recordCallAction when the call left the order Confirmed or Cancelled. */
+export type ActionState = { ok: boolean; message: string | null; finished?: boolean };
 
 const invalid: ActionState = { ok: false, message: INVALID_INPUT_MESSAGE };
 
@@ -59,7 +60,7 @@ export async function assignOrderAction(_previous: ActionState, formData: FormDa
     p_agent_id: parsed.data.agentId,
     p_expected_version: parsed.data.expectedVersion,
   });
-  return finish(result, ["/admin", "/agent"]);
+  return finish(result, ["/dashboard", "/admin", "/agent"]);
 }
 
 /** Records a call. The idempotency key makes a double submit a replay, not a second call. */
@@ -79,7 +80,13 @@ export async function recordCallAction(_previous: ActionState, formData: FormDat
     p_expected_version: parsed.data.expectedVersion,
     p_idempotency_key: parsed.data.idempotencyKey,
   });
-  return finish(result, ["/agent"]);
+  const state = finish(result, ["/dashboard", "/agent"]);
+  if (!result.ok) return state;
+  // Read the status back, so the page knows whether this call ended the order.
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.from("orders").select("pipeline_status").eq("id", parsed.data.orderId).maybeSingle();
+  const finished = data?.pipeline_status === "Confirmed" || data?.pipeline_status === "Cancelled";
+  return { ...state, finished };
 }
 
 export async function confirmOrderAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -94,7 +101,7 @@ export async function confirmOrderAction(_previous: ActionState, formData: FormD
     p_order_id: parsed.data.orderId,
     p_expected_version: parsed.data.expectedVersion,
   });
-  return finish(result, ["/agent"]);
+  return finish(result, ["/dashboard", "/agent"]);
 }
 
 export async function cancelOrderAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -111,7 +118,7 @@ export async function cancelOrderAction(_previous: ActionState, formData: FormDa
     p_reason: parsed.data.reason,
     p_expected_version: parsed.data.expectedVersion,
   });
-  return finish(result, ["/agent"]);
+  return finish(result, ["/dashboard", "/agent"]);
 }
 
 export async function addNoteAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -126,5 +133,5 @@ export async function addNoteAction(_previous: ActionState, formData: FormData):
     p_order_id: parsed.data.orderId,
     p_body: parsed.data.body,
   });
-  return finish(result, ["/agent"]);
+  return finish(result, ["/dashboard", "/agent"]);
 }

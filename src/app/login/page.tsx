@@ -8,20 +8,25 @@ import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <p className="brand text-2xl">Homivio</p>
-          <p className="muted mt-1 text-sm">COD order confirmation console</p>
+    <main className="lg">
+      <span className="lg-orb lg-orb-a" aria-hidden="true" />
+      <span className="lg-orb lg-orb-b" aria-hidden="true" />
+      <div className="lg-wrap">
+        <div className="lg-brand">
+          <span className="lg-mark" aria-hidden="true">H</span>
+          <div className="text-center">
+            <p className="lg-name">Homivio</p>
+            <p className="lg-sub">COD order confirmation console</p>
+          </div>
         </div>
-        <div className="card p-7">
+        <div className="lg-card">
           <h1 className="mb-1 text-xl font-semibold tracking-tight">Sign in</h1>
           <p className="muted mb-6 text-sm">Use the account your administrator created for you.</p>
           <Suspense fallback={<p className="muted text-sm">Checking your session…</p>}>
             <LoginGate />
           </Suspense>
         </div>
-        <p className="muted mt-6 text-center text-xs">Access is limited to authorised Homivio staff.</p>
+        <p className="lg-foot">Access is limited to authorised Homivio staff.</p>
       </div>
     </main>
   );

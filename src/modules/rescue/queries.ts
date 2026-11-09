@@ -18,7 +18,7 @@ const ID_CHUNK_SIZE = 100;
 const ATTEMPT_LIMIT_PER_CHUNK = 1000;
 const ACTIVE_STATUSES = ["New", "No Answer", "Called"] as const;
 const ORDER_SELECT =
-  "id, source_order_id, pipeline_status, assigned_agent_id, unanswered_attempt_count, source_created_at, shipping_city, " +
+  "id, source_order_id, pipeline_status, assigned_agent_id, version, unanswered_attempt_count, source_created_at, shipping_city, " +
   "customer:customers!customer_id(display_name), agent:profiles!assigned_agent_id(display_name)";
 
 const orderRowSchema = z.object({
@@ -26,6 +26,7 @@ const orderRowSchema = z.object({
   source_order_id: z.string(),
   pipeline_status: z.enum(PIPELINE_STATUSES).nullable(),
   assigned_agent_id: z.uuid().nullable(),
+  version: z.number().int(),
   unanswered_attempt_count: z.number().int(),
   source_created_at: z.string(),
   shipping_city: z.string(),
@@ -107,6 +108,7 @@ export async function loadRescueItems(options: { agentId?: string } = {}): Promi
     };
     return {
       signals,
+      version: order.version,
       customerName: order.customer?.display_name ?? null,
       agentName: order.agent?.display_name ?? null,
       shippingCity: order.shipping_city,

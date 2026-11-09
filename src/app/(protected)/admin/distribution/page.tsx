@@ -44,12 +44,14 @@ async function DistributionLoader() {
   }
 
   return (
-    <div className="flex max-w-6xl flex-col gap-5">
-      <header>
-        <h1 className="text-xl font-semibold tracking-tight">Distribution Center</h1>
-        <p className="muted mt-1 text-sm">
+    <div className="ov flex max-w-6xl flex-col gap-5">
+      <header className="ov-head">
+        <div>
+          <h1 className="ov-title">Distribution Center</h1>
+          <p className="ov-sub">
           Signed in as {user.displayName}. Assign unassigned new orders to active agents in one batch. Nothing changes until you confirm.
-        </p>
+          </p>
+        </div>
       </header>
       <DistributionCenter
         candidates={candidates.rows}

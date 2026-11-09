@@ -9,10 +9,10 @@ import type { RescueRow } from "@/modules/rescue/domain/queue";
 const LEVEL_LABELS: Record<PriorityLevel, string> = { urgent: "Urgent", high: "High", normal: "Normal", low: "Low" };
 
 const LEVEL_CLASSES: Record<PriorityLevel, string> = {
-  urgent: "border-red-300 bg-red-50 text-red-800",
-  high: "border-amber-300 bg-amber-50 text-amber-900",
-  normal: "border-slate-300 bg-slate-100 text-slate-800",
-  low: "border-slate-200 bg-white text-slate-600",
+  urgent: "border-danger bg-danger-soft text-danger",
+  high: "border-warning bg-warning-soft text-warning",
+  normal: "border-border bg-surface-muted text-foreground",
+  low: "border-border bg-surface text-muted",
 };
 
 export const ACTION_LABELS: Record<RecommendedAction, string> = {
@@ -66,7 +66,7 @@ export function RescueNotices({
   }
   if (notes.length === 0) return null;
   return (
-    <div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+    <div role="status" className="rounded-lg border border-warning bg-warning-soft p-4 text-sm text-warning">
       <ul className="list-disc space-y-1 pl-5">
         {notes.map((note) => (
           <li key={note}>{note}</li>
@@ -107,7 +107,7 @@ export function NextRecommendedCard({ row, linkOrders }: { row: RescueRow | null
   }
   const a = row.assessment;
   return (
-    <section className="card border-blue-200 p-5" aria-labelledby="next-recommended-title">
+    <section className="card border-info p-5" aria-labelledby="next-recommended-title">
       <p id="next-recommended-title" className="muted text-xs font-semibold uppercase tracking-wide">
         Next recommended order
       </p>
@@ -151,7 +151,7 @@ export function RescueTable({
   return (
     <section className="card overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="text-xs uppercase tracking-wide text-slate-500">
+        <thead className="text-xs uppercase tracking-wide text-muted">
           <tr>
             <th scope="col" className="px-4 py-3 font-semibold">Priority</th>
             <th scope="col" className="px-4 py-3 font-semibold">Order</th>
@@ -164,18 +164,18 @@ export function RescueTable({
             <th scope="col" className="px-4 py-3 font-semibold">Last call</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-border">
           {rows.map((row) => {
             const a = row.assessment;
             return (
-              <tr key={a.orderId} className="align-top hover:bg-slate-50">
+              <tr key={a.orderId} className="align-top hover:bg-surface-muted">
                 <td className="px-4 py-3">
                   <PriorityBadge level={a.level} />
                   <p className="muted mt-1 text-xs tabular-nums">Score {a.score}</p>
                 </td>
                 <td className="px-4 py-3">
                   {linkOrders ? (
-                    <Link href={`/agent/orders/${a.orderId}`} className="font-mono text-xs font-semibold text-blue-700 underline-offset-2 hover:underline">
+                    <Link href={`/agent/orders/${a.orderId}`} className="font-mono text-xs font-semibold text-info underline-offset-2 hover:underline">
                       {a.orderRef}
                     </Link>
                   ) : (

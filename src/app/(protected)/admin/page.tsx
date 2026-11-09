@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { Suspense } from "react";
 
+import { cityFilterLabel } from "@/modules/analytics/domain/cities";
 import { requireArea } from "@/modules/auth/guards";
 import { formatDateTime, formatMad } from "@/modules/orders/format";
-import { ORDER_STATUS_FILTERS, parseOrderFilters, type OrderStatusFilter } from "@/modules/orders/order-filters";
+import { ORDER_STATUS_FILTERS, parseOrderFilters, type OrderListFilters, type OrderStatusFilter } from "@/modules/orders/order-filters";
 import { listActiveAgents, listOrdersForAdmin, type ActiveAgent, type AdminOrderRow } from "@/modules/orders/queries";
 import { orderActions } from "@/modules/orders/workflow-view";
 
@@ -33,6 +35,16 @@ function OrdersLoading() {
   );
 }
 
+/** Keeps only the filters that are set, so the clear link and the search form stay consistent. */
+function ordersHref(filters: Pick<OrderListFilters, "q" | "status" | "city">): string {
+  const params = new URLSearchParams();
+  if (filters.q !== "") params.set("q", filters.q);
+  if (filters.status !== "all") params.set("status", filters.status);
+  if (filters.city !== "") params.set("city", filters.city);
+  const query = params.toString();
+  return query === "" ? "/admin" : `/admin?${query}`;
+}
+
 async function AdminOrders({
   searchParams,
 }: {
@@ -42,7 +54,7 @@ async function AdminOrders({
 
   const filters = parseOrderFilters(await searchParams);
   const [result, agentResult] = await Promise.all([listOrdersForAdmin(filters), listActiveAgents()]);
-  const isFiltered = filters.q !== "" || filters.status !== "all";
+  const isFiltered = filters.q !== "" || filters.status !== "all" || filters.city !== "";
 
   return (
     <div className="flex max-w-7xl flex-col gap-5">
@@ -54,6 +66,7 @@ async function AdminOrders({
       </header>
 
       <form method="get" role="search" className="card flex flex-wrap items-end gap-3 p-4">
+        {filters.city !== "" ? <input type="hidden" name="city" value={filters.city} /> : null}
         <div className="min-w-64 flex-1">
           <label htmlFor="q" className="label">
             Search
@@ -79,10 +92,19 @@ async function AdminOrders({
             ))}
           </select>
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary btn-white">
           Apply
         </button>
       </form>
+
+      {filters.city !== "" ? (
+        <p className="muted text-sm" role="status">
+          Showing orders shipped to <strong className="text-foreground font-semibold">{cityFilterLabel(filters.city)}</strong>.{" "}
+          <Link href={ordersHref({ ...filters, city: "" })} className="underline-offset-2 hover:underline">
+            Clear city filter
+          </Link>
+        </p>
+      ) : null}
 
       {!agentResult.ok ? (
         <div className="alert-error" role="alert">
@@ -124,12 +146,12 @@ function OrdersTable({
 
   return (
     <section className="card overflow-x-auto">
-      <p className="muted border-b border-slate-200 px-4 py-3 text-sm">
+      <p className="muted border-b border-border px-4 py-3 text-sm">
         Showing {rows.length} order{rows.length === 1 ? "" : "s"}
         {truncated ? ` (first ${rows.length}; narrow the search to see more)` : ""}.
       </p>
       <table className="w-full text-left text-sm">
-        <thead className="text-xs uppercase tracking-wide text-slate-500">
+        <thead className="muted text-xs uppercase tracking-wide">
           <tr>
             <th scope="col" className="px-4 py-3 font-semibold">Reference</th>
             <th scope="col" className="px-4 py-3 font-semibold">Customer</th>
@@ -142,7 +164,7 @@ function OrdersTable({
             <th scope="col" className="px-4 py-3 font-semibold">Created</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-border">
           {rows.map((row) => (
             <tr key={row.id}>
               <td className="px-4 py-3 font-mono text-xs">{row.source_order_id}</td>

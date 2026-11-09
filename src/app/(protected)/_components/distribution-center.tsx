@@ -160,9 +160,18 @@ export function DistributionCenter({
   const canConfirm = current !== null && review.status === "ready" && !dirty;
 
   return (
-    <div className="flex flex-col gap-5">
-      <section className="card p-4" aria-label="Assignment mode">
-        <div role="group" aria-label="Assignment mode" className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+    <div className="dc flex flex-col gap-5">
+      <ol aria-label="Distribution steps" className="flex flex-wrap items-center gap-2 text-sm">
+        {["Select orders", "Choose mode and agents", "Review", "Confirm"].map((step, index) => (
+          <li key={step} className="flex items-center gap-2">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border bg-surface text-xs font-semibold tabular-nums">{index + 1}</span>
+            <span className="font-medium">{step}</span>
+            {index < 3 ? <span className="muted" aria-hidden="true">→</span> : null}
+          </li>
+        ))}
+      </ol>
+      <section className="dc-panel p-4" aria-label="Assignment mode">
+        <div role="group" aria-label="Assignment mode" className="inline-flex rounded-lg border border-border bg-surface-muted p-1">
           {MODES.map((item) => (
             <button
               key={item.value}
@@ -170,7 +179,7 @@ export function DistributionCenter({
               aria-pressed={mode === item.value}
               onClick={() => setMode(item.value)}
               className={`rounded-md px-4 py-1.5 text-sm font-semibold transition ${
-                mode === item.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                mode === item.value ? "bg-surface text-foreground shadow-sm" : "text-muted hover:text-foreground"
               }`}
             >
               {item.label}
@@ -180,7 +189,7 @@ export function DistributionCenter({
         <p className="muted mt-3 text-sm">{MODES.find((item) => item.value === mode)?.description}</p>
       </section>
 
-      <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <dl className="dc-stats grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Eligible orders" value={total} />
         <Stat label="Matching filters" value={filtered.length} />
         <Stat label="Selected" value={selectedIds.length} />
@@ -188,13 +197,13 @@ export function DistributionCenter({
       </dl>
 
       {truncated ? (
-        <div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div role="status" className="rounded-lg border border-warning bg-warning-soft p-4 text-sm text-warning">
           Only the first 2,000 eligible orders are loaded. Distribute the rest in a later batch.
         </div>
       ) : null}
 
       {candidates.length === 0 ? (
-        <section className="card p-6">
+        <section className="dc-panel p-6">
           <p className="text-sm font-medium">No orders are waiting for assignment.</p>
           <p className="muted mt-1 text-sm">
             Only new orders with no assignee appear here. Assigned, confirmed, cancelled and historical orders are not included.
@@ -202,9 +211,9 @@ export function DistributionCenter({
         </section>
       ) : (
         <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <section className="card p-5">
+          <section className="dc-panel p-5">
             <div className="flex flex-wrap items-end gap-3">
-              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+              <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
                 City
                 <select className="input py-1.5 text-sm" value={city} onChange={(event) => setCity(event.target.value)}>
                   <option value="all">All cities</option>
@@ -213,7 +222,7 @@ export function DistributionCenter({
                   ))}
                 </select>
               </label>
-              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+              <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
                 Order reference
                 <input className="input py-1.5 text-sm" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="BRX-" />
               </label>
@@ -224,9 +233,9 @@ export function DistributionCenter({
                 Clear selection
               </button>
             </div>
-            <div className="mt-4 max-h-96 overflow-auto rounded-md border border-slate-200">
+            <div className="mt-4 max-h-96 overflow-auto rounded-md border border-border">
               <table className="w-full text-left text-sm">
-                <thead className="sticky top-0 bg-white text-xs uppercase tracking-wide text-slate-500">
+                <thead className="sticky top-0 bg-surface text-xs uppercase tracking-wide text-muted">
                   <tr>
                     <th scope="col" className="px-3 py-2"><span className="sr-only">Select</span></th>
                     <th scope="col" className="px-3 py-2 font-semibold">Order ID</th>
@@ -236,9 +245,9 @@ export function DistributionCenter({
                     <th scope="col" className="px-3 py-2 text-right font-semibold">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                   {filtered.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50">
+                    <tr key={item.id} className="dc-row">
                       <td className="px-3 py-2">
                         <input type="checkbox" aria-label={`Select ${item.orderRef}`} checked={selected.has(item.id)} onChange={() => toggleOrder(item.id)} />
                       </td>
@@ -257,7 +266,7 @@ export function DistributionCenter({
             </div>
           </section>
 
-          <section className="card p-5">
+          <section className="dc-panel p-5">
             <h2 className="text-sm font-semibold">Agents</h2>
             <p className="muted mt-1 text-xs">Only active agents appear. Workload counts New, No Answer and Called orders.</p>
             <ul className="mt-4 space-y-3">
@@ -277,7 +286,7 @@ export function DistributionCenter({
       )}
 
       {candidates.length > 0 ? (
-        <section className="card flex flex-col gap-5 p-5" aria-labelledby="preview-title">
+        <section className="dc-panel flex flex-col gap-5 p-5" aria-labelledby="preview-title">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="preview-title" className="text-sm font-semibold">Preview</h2>
             <p className="muted text-xs">Nothing is written until you confirm below.</p>
@@ -315,13 +324,13 @@ export function DistributionCenter({
           {review.status === "error" ? <div className="alert-error" role="alert">{review.message}</div> : null}
 
           {stale ? (
-            <div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+            <div role="status" className="rounded-lg border border-warning bg-warning-soft p-3 text-sm text-warning">
               The mode, orders or agents changed after this review. Review again before you confirm.
             </div>
           ) : null}
 
           {current !== null && dirty ? (
-            <div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+            <div role="status" className="rounded-lg border border-warning bg-warning-soft p-3 text-sm text-warning">
               You changed the proposed assignments. Check your edits before you confirm.
             </div>
           ) : null}
@@ -349,7 +358,7 @@ export function DistributionCenter({
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="card p-4">
+    <div className="dc-panel p-4">
       <dt className="muted text-xs">{label}</dt>
       <dd className="mt-1 text-2xl font-semibold tabular-nums">{value}</dd>
     </div>
@@ -370,18 +379,18 @@ function Summary({ review }: { review: ReviewView }) {
 
 function statusFor(row: ReviewRow, effectiveAgent: string | null): { label: string; tone: string } {
   if (!row.editable) {
-    return { label: REVIEW_REASON_LABELS[row.reason ?? ""] ?? "Skipped", tone: "border-slate-200 bg-slate-100 text-slate-600" };
+    return { label: REVIEW_REASON_LABELS[row.reason ?? ""] ?? "Skipped", tone: "border-border bg-surface-muted text-muted" };
   }
   if (effectiveAgent === null) {
     return {
       label: row.reason === "agent_unavailable" ? "Agent not active" : "Needs an agent",
-      tone: "border-amber-300 bg-amber-50 text-amber-900",
+      tone: "border-warning bg-warning-soft text-warning",
     };
   }
   if (effectiveAgent !== row.proposedAgentId) {
-    return { label: "Changed", tone: "border-violet-200 bg-violet-50 text-violet-800" };
+    return { label: "Changed", tone: "border-violet bg-violet-soft text-violet" };
   }
-  return { label: "Proposed", tone: "border-blue-200 bg-blue-50 text-blue-800" };
+  return { label: "Proposed", tone: "border-info bg-info-soft text-info" };
 }
 
 /** Presentational table: the admin changes agents here. State lives in the parent, so the dirty check can see it. */
@@ -408,7 +417,7 @@ function ProposalEditor({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+        <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
           Bulk agent for selected rows
           <select className="input py-1.5 text-sm" value={bulkAgent} onChange={(event) => setBulkAgent(event.target.value)}>
             <option value="">Choose an agent</option>
@@ -430,9 +439,9 @@ function ProposalEditor({
         </div>
       </div>
 
-      <div className="max-h-[28rem] overflow-auto rounded-md border border-slate-200">
+      <div className="max-h-[28rem] overflow-auto rounded-md border border-border">
         <table className="w-full text-left text-sm">
-          <thead className="sticky top-0 bg-white text-xs uppercase tracking-wide text-slate-500">
+          <thead className="sticky top-0 bg-surface text-xs uppercase tracking-wide text-muted">
             <tr>
               <th scope="col" className="px-3 py-2"><span className="sr-only">Select</span></th>
               <th scope="col" className="px-3 py-2 font-semibold">Order ID</th>
@@ -442,12 +451,12 @@ function ProposalEditor({
               <th scope="col" className="px-3 py-2 font-semibold">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-border">
             {pageRows.map((row) => {
               const agentId = effective.get(row.orderId) ?? null;
               const status = statusFor(row, agentId);
               return (
-                <tr key={row.orderId} className="align-middle hover:bg-slate-50">
+                <tr key={row.orderId} className="dc-row align-middle">
                   <td className="px-3 py-2">
                     {row.editable ? (
                       <input
@@ -467,7 +476,7 @@ function ProposalEditor({
                   </td>
                   <td className="px-3 py-2 font-mono text-xs font-semibold">{row.orderRef}</td>
                   <td className="px-3 py-2">{row.customerName ?? "—"}</td>
-                  <td className="px-3 py-2 text-slate-600">{row.currentAgentName ?? "Unassigned"}</td>
+                  <td className="px-3 py-2 text-muted">{row.currentAgentName ?? "Unassigned"}</td>
                   <td className="px-3 py-2">
                     {row.editable ? (
                       <select
@@ -482,7 +491,7 @@ function ProposalEditor({
                         ))}
                       </select>
                     ) : (
-                      <span className="text-slate-500">—</span>
+                      <span className="text-muted">—</span>
                     )}
                   </td>
                   <td className="px-3 py-2">
@@ -504,10 +513,10 @@ function WorkloadBars({ agents, added, title }: { agents: AgentView[]; added: Ma
   const maxLoad = Math.max(1, ...projected);
   return (
     <div>
-      <div className="mb-2 flex flex-wrap items-center gap-4 text-xs text-slate-600">
-        <span className="font-semibold text-slate-800">{title}</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-slate-400" /> Current</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-blue-600" /> New</span>
+      <div className="mb-2 flex flex-wrap items-center gap-4 text-xs text-muted">
+        <span className="font-semibold text-foreground">{title}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-muted" /> Current</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-primary" /> New</span>
       </div>
       <ul className="space-y-3">
         {agents.map((agent, index) => {
@@ -518,14 +527,14 @@ function WorkloadBars({ agents, added, title }: { agents: AgentView[]; added: Ma
             <li key={agent.id} className="grid gap-2 md:grid-cols-[10rem_minmax(0,1fr)_auto] md:items-center">
               <span className="text-sm font-medium">{agent.displayName}</span>
               <div
-                className="relative h-3 overflow-hidden rounded-full bg-slate-100"
+                className="relative h-3 overflow-hidden rounded-full bg-surface-muted"
                 role="img"
                 aria-label={`${agent.displayName}: ${agent.currentLoad} now, ${newOrders} new, ${projected[index] ?? 0} after`}
               >
-                <div className="absolute inset-y-0 left-0 bg-slate-400" style={{ width: `${currentPct}%` }} />
-                <div className="absolute inset-y-0 bg-blue-600" style={{ left: `${currentPct}%`, width: `${addedPct}%` }} />
+                <div className="dc-fill absolute inset-y-0 left-0 bg-muted" style={{ width: `${currentPct}%` }} />
+                <div className="dc-fill absolute inset-y-0 bg-primary" style={{ left: `${currentPct}%`, width: `${addedPct}%` }} />
               </div>
-              <span className="text-xs tabular-nums text-slate-700">
+              <span className="text-xs tabular-nums text-foreground">
                 {agent.currentLoad} → <strong>{projected[index] ?? 0}</strong> <span className="muted">(+{newOrders})</span>
               </span>
             </li>
@@ -542,7 +551,7 @@ function ConfirmDistribution({ review }: { review: ReviewView }) {
   const count = review.proposedCount;
 
   return (
-    <form action={action} className="flex flex-col gap-3 border-t border-slate-200 pt-5">
+    <form action={action} className="flex flex-col gap-3 border-t border-border pt-5">
       <h3 className="text-sm font-semibold">Confirm and write</h3>
       <p className="text-sm">
         You are approving exactly <strong>{count}</strong> {count === 1 ? "assignment" : "assignments"} in{" "}
@@ -571,17 +580,17 @@ function ConfirmDistribution({ review }: { review: ReviewView }) {
 
 function ResultSummary({ result }: { result: DistributionSummary }) {
   return (
-    <section className="rounded-lg border border-emerald-300 bg-emerald-50 p-4" role="status" aria-live="polite">
-      <h3 className="text-sm font-semibold text-emerald-900">
+    <section className="rounded-lg border border-success bg-success-soft p-4" role="status" aria-live="polite">
+      <h3 className="text-sm font-semibold text-success">
         {result.replayed ? "This batch was already applied. Showing the stored result." : `${MODE_LABEL[result.mode]} distribution complete`}
       </h3>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
-        <div><dt className="text-xs text-emerald-800">Assigned</dt><dd className="text-xl font-semibold tabular-nums">{result.assigned}</dd></div>
-        <div><dt className="text-xs text-emerald-800">Skipped</dt><dd className="text-xl font-semibold tabular-nums">{result.skipped}</dd></div>
-        <div><dt className="text-xs text-emerald-800">Failed</dt><dd className="text-xl font-semibold tabular-nums">{result.failed}</dd></div>
+        <div><dt className="text-xs text-success">Assigned</dt><dd className="text-xl font-semibold tabular-nums">{result.assigned}</dd></div>
+        <div><dt className="text-xs text-success">Skipped</dt><dd className="text-xl font-semibold tabular-nums">{result.skipped}</dd></div>
+        <div><dt className="text-xs text-success">Failed</dt><dd className="text-xl font-semibold tabular-nums">{result.failed}</dd></div>
       </dl>
       {result.reasons.length > 0 ? (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-emerald-900">
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-success">
           {result.reasons.map((item) => (
             <li key={item.reason}>{item.count} skipped: {REVIEW_REASON_LABELS[item.reason] ?? "Not assigned"}</li>
           ))}
